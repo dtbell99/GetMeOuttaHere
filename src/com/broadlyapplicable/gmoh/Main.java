@@ -44,7 +44,6 @@ public class Main extends Application {
     private static final int BORDER_STROKE_WIDTH = 3;
     private static final int TASK_MAX = 10000;
     private static final Color BORDER_COLOR = Color.MEDIUMAQUAMARINE;
-    private static final Color BORDER_SAFE_COLOR = Color.ROYALBLUE;
     private static final int BLOCK_HEIGHT = 25;
     private static final int BLOCK_WIDTH = 25;
     private static final Color USER_COLOR = Color.DARKSEAGREEN;
@@ -52,7 +51,6 @@ public class Main extends Application {
     private static final double USER_CENTER_X = 50.0;
     private static final double USER_CENTER_Y = 50.0;
     private static final double USER_RADIUS = 15.0;
-    private static final double BLOCK_RADIUS = 15.0;
     private static final int JUMP = 2;
     private static final int SLEEP_MILLISECONDS = 5;
     private static final int HOLE_SIZE = 55;
@@ -64,10 +62,10 @@ public class Main extends Application {
     private static final double MIN_BLOCKS = 5;
     private static final double MAX_BLOCKS = 100;
     private static final double SLIDER_DEFAULT = 20;
-
+    public static void main(String[] args) {
+        launch(args);
+    }
     private Circle user;
-    private Label movesLabel;
-    private int moves = 0;
     private Pane gamePane;
     private Set<Rectangle> blocks;
     private Set<Line> borders;
@@ -103,8 +101,6 @@ public class Main extends Application {
 
     private void setupMultimedia() {
         hitPlayer = new AudioClip(new File(HIT_SOUND_FILE).toURI().toString());
-        hitPlayer.play(2.0);
-        hitPlayer.play(2.0);
     }
 
     private void addSlider(Pane pane) {
@@ -122,6 +118,7 @@ public class Main extends Application {
         pane.getChildren().add(blockSlider);
 
         blockSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
                 System.out.println("Update blockSlider value=" + blockSlider.getValue());
                 reset();
@@ -308,18 +305,11 @@ public class Main extends Application {
         }
     }
 
-    private void addLabels(Pane pane) {
-        movesLabel = new Label("Moves:" + moves);
-
-        pane.getChildren().add(movesLabel);
-    }
-
     private void addBlocks(Pane root) {
         blocks = new HashSet<>();
         Random rand = new Random();
         for (int i = 0; i < blockSlider.getValue(); i++) {
             Rectangle r = new Rectangle();
-            //Circle c = new Circle();
             boolean added = false;
             int x = 0;
             int y = 0;
@@ -336,8 +326,6 @@ public class Main extends Application {
             r.setWidth(BLOCK_WIDTH);
             int colorPosition = rand.nextInt(4);
             r.setFill(BLOCK_COLORS[colorPosition]);
-            // root.getChildren().add(c);
-            // blocks.add(c);
             root.getChildren().add(r);
             blocks.add(r);
         }
@@ -361,58 +349,23 @@ public class Main extends Application {
         Line line1 = new Line(MIN_X, MIN_Y, MIN_X, MAX_Y);
         line1.setStroke(BORDER_COLOR);
         line1.setStrokeWidth(BORDER_STROKE_WIDTH);
-
         borders.add(line1);
 
         Line line2 = new Line(MIN_X, MIN_Y, MAX_X, MIN_Y);
         line2.setStroke(BORDER_COLOR);
         line2.setStrokeWidth(BORDER_STROKE_WIDTH);
-
         borders.add(line2);
 
         Line line3 = new Line(MAX_X, MIN_Y, MAX_X, MAX_Y - HOLE_SIZE);
         line3.setStroke(BORDER_COLOR);
         line3.setStrokeWidth(BORDER_STROKE_WIDTH);
-
         borders.add(line3);
 
         Line line4 = new Line(MIN_X, MAX_Y, MAX_X - HOLE_SIZE, MAX_Y);
         line4.setStroke(BORDER_COLOR);
         line4.setStrokeWidth(BORDER_STROKE_WIDTH);
-
         borders.add(line4);
 
         root.getChildren().addAll(line1, line2, line3, line4);
-
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    private void addEvents(Scene scene) {
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-            public void handle(final KeyEvent keyEvent) {
-                if (null != keyEvent.getCode()) {
-                    switch (keyEvent.getCode()) {
-                        case DOWN:
-                            updateUser(null, user.getCenterY(), 0, JUMP);
-                            break;
-                        case UP:
-                            updateUser(null, user.getCenterY(), 0, -JUMP);
-                            break;
-                        case RIGHT:
-                            updateUser(user.getCenterX(), null, JUMP, 0);
-                            break;
-                        case LEFT:
-                            updateUser(user.getCenterX(), null, -JUMP, 0);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        });
-    }
-
 }
