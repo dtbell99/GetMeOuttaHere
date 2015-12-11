@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -67,20 +66,20 @@ public class Main extends Application {
     private static final double SLIDER_DEFAULT = 20;
 
     private Circle user;
-    //private int totalBlocks = 1;
     private Label movesLabel;
     private int moves = 0;
     private Pane gamePane;
     private Set<Rectangle> blocks;
     private Set<Line> borders;
     private int currentDirection = -1;
-
     private Button resetButton;
     private Button stopButton;
     private Button goButton;
     private ProgressBar progressBar;
     private Slider blockSlider;
     private AudioClip hitPlayer;
+    private double currentX;
+    private double currentY;
 
     @Override
     public void start(Stage primaryStage) {
@@ -89,16 +88,13 @@ public class Main extends Application {
         buttonHbox.setPadding(new Insets(10, 10, 10, 10));
         gamePane = new Pane();
         vbox.getChildren().add(gamePane);
-
         vbox.getChildren().add(buttonHbox);
         addButtons(buttonHbox);
         progressBar = new ProgressBar();
         buttonHbox.getChildren().add(progressBar);
         addSlider(buttonHbox);
         setupMultimedia();
-
         updateGamePane();
-
         Scene scene = new Scene(vbox, APP_WIDTH, APP_HEIGHT);
         primaryStage.setTitle("Get Me Outta Here");
         primaryStage.setScene(scene);
@@ -107,6 +103,8 @@ public class Main extends Application {
 
     private void setupMultimedia() {
         hitPlayer = new AudioClip(new File(HIT_SOUND_FILE).toURI().toString());
+        hitPlayer.play(2.0);
+        hitPlayer.play(2.0);
     }
 
     private void addSlider(Pane pane) {
@@ -128,15 +126,6 @@ public class Main extends Application {
                 System.out.println("Update blockSlider value=" + blockSlider.getValue());
                 reset();
             }
-        });
-
-        blockSlider.setOnMouseDragReleased(new EventHandler<MouseDragEvent>() {
-            @Override
-            public void handle(MouseDragEvent e) {
-                //totalBlocks = (int) blockSlider.getValue();
-
-            }
-
         });
     }
 
@@ -235,6 +224,9 @@ public class Main extends Application {
 
     private void autoMove() {
         int dir = getDirection();
+        if (dir < 0) {
+            return;
+        }
         switch (dir) {
             case 0:
                 updateUser(null, user.getCenterY(), 0, JUMP);
@@ -282,8 +274,8 @@ public class Main extends Application {
             return;
         }
 
-        double currentX = user.getCenterX();
-        double currentY = user.getCenterY();
+        currentX = user.getCenterX();
+        currentY = user.getCenterY();
         if (x != null) {
             user.setCenterX(x.intValue() + xJump);
         }
@@ -294,7 +286,7 @@ public class Main extends Application {
             Shape intersect = Shape.intersect(block, user);
             if (intersect.getBoundsInLocal().getWidth() != -1) {
                 System.out.println("Collision Detected");
-                hitPlayer.play(1.0);
+                hitPlayer.play();
                 user.setCenterX(currentX);
                 user.setCenterY(currentY);
                 currentDirection = -1;
@@ -307,7 +299,7 @@ public class Main extends Application {
             Shape intersect = Shape.intersect(border, user);
             if (intersect.getBoundsInLocal().getWidth() != -1) {
                 System.out.println("Hit a border");
-                hitPlayer.play(1.0);
+                hitPlayer.play();
                 user.setCenterX(currentX);
                 user.setCenterY(currentY);
                 currentDirection = -1;
